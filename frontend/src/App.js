@@ -28,7 +28,46 @@ export default function App() {
     <div style={{ display: "flex" }}>
       <div style={{ width: "70%" }}>
         <h2>Inventory Management System</h2>
-        <SearchBar onSearch={fetchProducts} />
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+  <button onClick={() => document.getElementById("fileInput").click()}>
+    Import CSV
+  </button>
+
+  <button
+    onClick={() => {
+      window.location.href = `${API_BASE}/export`;
+    }}
+  >
+    Export CSV
+  </button>
+
+  <input
+    id="fileInput"
+    type="file"
+    accept=".csv"
+    style={{ display: "none" }}
+    onChange={async (e) => {
+      const file = e.target.files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+
+      await fetch(`${API_BASE}/import`, {
+        method: "POST",
+        body: formData,
+      });
+      fetchProducts();
+    }}
+  />
+</div>
+
+        <SearchBar onSearch={(q) => fetchProducts(q)} />
+<select onChange={(e) => fetchProducts(e.target.value)} style={{ marginLeft: 10 }}>
+  <option value="">All Categories</option>
+  <option value="Electronics">Electronics</option>
+  <option value="Grocery">Grocery</option>
+  <option value="Clothing">Clothing</option>
+</select>
+
         <ProductsTable
           products={products}
           refresh={fetchProducts}
