@@ -3,6 +3,10 @@ import { useState } from "react";
 export default function SearchBar({ onSearch }) {
   const [query, setQuery] = useState("");
 
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") search();
+  };
+
   const search = () => {
     onSearch(query);
   };
@@ -12,6 +16,7 @@ export default function SearchBar({ onSearch }) {
       <input
         placeholder="Search by name..."
         onChange={(e) => setQuery(e.target.value)}
+        onKeyPress={handleKeyPress}
       />
       <button onClick={search}>Search</button>
     </div>
