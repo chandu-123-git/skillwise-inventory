@@ -9,11 +9,16 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const fetchProducts = async () => {
-    const res = await fetch(API_BASE);
-    const data = await res.json();
-    setProducts(data);
-  };
+  const fetchProducts = async (search = "") => {
+  const endpoint = search
+    ? `${API_BASE}/search?name=${search}`
+    : API_BASE;
+
+  const res = await fetch(endpoint);
+  const data = await res.json();
+  setProducts(data);
+};
+
 
   useEffect(() => {
     fetchProducts();
