@@ -3,7 +3,7 @@ import ProductsTable from "./components/ProductsTable";
 import SearchBar from "./components/SearchBar";
 import Sidebar from "./components/Sidebar";
 
-const API_BASE = "https://your-backend-url.onrender.com/api/products";
+const API_BASE = "https://skillwise-inventory-2zrt.onrender.com/api/products";
 
 export default function App() {
   const [products, setProducts] = useState([]);
