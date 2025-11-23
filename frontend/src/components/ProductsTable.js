@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const API_BASE = "https://your-backend-url/api/products";
+const API_BASE = "https://skillwise-inventory-2zrt.onrender.com/api/products";
 
 export default function ProductsTable({ products, refresh, selectProduct }) {
   const [editId, setEditId] = useState(null);
