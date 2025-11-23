@@ -73,4 +73,72 @@ router.get("/:id/history", async (req, res) => {
   }
 });
 
+import multer from "multer";
+import fs from "fs";
+import { parse } from "csv-parse";
+
+const upload = multer({ dest: "uploads/" });
+
+router.post("/import", upload.single("file"), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "File required" });
+
+  const filePath = req.file.path;
+  let added = 0;
+  let skipped = 0;
+
+  const records = [];
+
+  fs.createReadStream(filePath)
+    .pipe(parse({ columns: true, trim: true }))
+    .on("data", (row) => records.push(row))
+    .on("end", async () => {
+      for (const row of records) {
+        const existing = await req.db.get(
+          "SELECT id FROM products WHERE LOWER(name)=?",
+          [row.name?.toLowerCase()]
+        );
+
+        if (existing) {
+          skipped++;
+        } else {
+          const stock = Number(row.stock || 0);
+          const status = stock > 0 ? "In Stock" : "Out of Stock";
+          await req.db.run(
+            `INSERT INTO products (name, unit, category, brand, stock, status, image)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [
+              row.name,
+              row.unit,
+              row.category,
+              row.brand,
+              stock,
+              status,
+              row.image || null,
+            ]
+          );
+          added++;
+        }
+      }
+
+      fs.unlinkSync(filePath);
+      res.json({ added, skipped });
+    });
+});
+router.get("/export", async (req, res) => {
+  try {
+    const rows = await req.db.all("SELECT * FROM products");
+
+    let csv = "name,unit,category,brand,stock,status,image\n";
+    rows.forEach((p) => {
+      csv += `${p.name},${p.unit},${p.category},${p.brand},${p.stock},${p.status},${p.image || ""}\n`;
+    });
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", "attachment; filename=products.csv");
+    res.send(csv);
+  } catch (err) {
+    res.status(500).json({ error: "Export failed" });
+  }
+});
+
 export default router;
