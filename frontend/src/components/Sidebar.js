@@ -6,7 +6,7 @@ export default function Sidebar({ product }) {
   useEffect(() => {
     if (!product) return;
     (async () => {
-      const backend = "https://your-backend-url/api/products";
+      const backend = "https://skillwise-inventory-2zrt.onrender.com/api/products";
       const res = await fetch(`${backend}/${product.id}/history`);
       const data = await res.json();
       setHistory(data);
