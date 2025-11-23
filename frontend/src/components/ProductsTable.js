@@ -20,6 +20,14 @@ export default function ProductsTable({ products, refresh, selectProduct }) {
     refresh();
   };
 
+  const deleteProduct = async (id) => {
+    if (!window.confirm("Delete this product?")) return;
+    await fetch(`${API_BASE}/${id}`, {
+      method: "DELETE",
+    });
+    refresh();
+  };
+
   return (
     <table border="1" style={{ width: "100%", marginTop: "10px" }}>
       <thead>
@@ -42,11 +50,15 @@ export default function ProductsTable({ products, refresh, selectProduct }) {
                 <td><input defaultValue={p.unit} onChange={(e)=>handleChange(e,'unit')} /></td>
                 <td><input defaultValue={p.category} onChange={(e)=>handleChange(e,'category')} /></td>
                 <td><input defaultValue={p.brand} onChange={(e)=>handleChange(e,'brand')} /></td>
-                <td><input defaultValue={p.stock} type="number" onChange={(e)=>handleChange(e,'stock')} /></td>
+                <td><input type="number" defaultValue={p.stock} onChange={(e)=>handleChange(e,'stock')} /></td>
                 <td><input defaultValue={p.status} onChange={(e)=>handleChange(e,'status')} /></td>
                 <td>
-                  <button onClick={() => saveUpdate(p.id)}>Save</button>
-                  <button onClick={() => setEditId(null)}>Cancel</button>
+                  <button onClick={(e) => { e.stopPropagation(); saveUpdate(p.id); }}>
+                    Save
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); setEditId(null); }}>
+                    Cancel
+                  </button>
                 </td>
               </>
             ) : (
@@ -56,8 +68,17 @@ export default function ProductsTable({ products, refresh, selectProduct }) {
                 <td>{p.category}</td>
                 <td>{p.brand}</td>
                 <td>{p.stock}</td>
-                <td style={{color: p.stock>0 ? "green" : "red"}}>{p.stock>0 ? "In Stock":"Out of Stock"}</td>
-                <td><button onClick={() => setEditId(p.id)}>Edit</button></td>
+                <td style={{color: p.stock>0 ? "green" : "red"}}>
+                  {p.stock>0 ? "In Stock":"Out of Stock"}
+                </td>
+                <td>
+                  <button onClick={(e) => { e.stopPropagation(); setEditId(p.id); }}>
+                    Edit
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); deleteProduct(p.id); }}>
+                    Delete
+                  </button>
+                </td>
               </>
             )}
           </tr>
